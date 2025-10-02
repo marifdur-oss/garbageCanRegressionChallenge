@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.24">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Garbage Can Regression Challenge</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="index_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="index_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Garbage Can Regression Challenge</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="garbage-can-regression-challenge" class="level1">
+<h1>Garbage Can Regression Challenge</h1>
+<p>You are using R. The dataset <code>observDF</code> encodes the true relationship: Anxiety = Stress + 0.1 × Time.</p>
+<section id="r-code" class="level2">
+<h2 class="anchored" data-anchor-id="r-code">R Code</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 4
+   Stress StressSurvey  Time Anxiety
+    &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+ 1      0            0   0      0   
+ 2      0            0   1      0.1 
+ 3      0            0   1      0.1 
+ 4      1            3   1      1.1 
+ 5      1            3   1      1.1 
+ 6      1            3   1      1.1 
+ 7      2            6   2      2.2 
+ 8      2            6   2      2.2 
+ 9      2            6   2      2.2 
+10      8            9   2      8.2 
+11      8            9   2      8.2 
+12      8            9   2.1    8.21
+13     12           12   2.2   12.2 
+14     12           12   2.2   12.2 
+15     12           12   2.2   12.2 </code></pre>
+</div>
+</div>
+</section>
+<section id="regression-analysis-r" class="level2">
+<h2 class="anchored" data-anchor-id="regression-analysis-r">Regression Analysis (R)</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$true_model_coefficients
+# A tibble: 3 × 5
+  term         estimate std.error statistic   p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept) 9.17 e-16  5.37e-16   1.71e 0 1.13e-  1
+2 Stress      1    e+ 0  6.07e-17   1.65e16 1.68e-189
+3 Time        1.000e- 1  4.27e-16   2.34e14 2.49e-167
+
+$true_model_fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared    sigma
+      &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+1         1             1 7.27e-16
+
+$stress_only_fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared  sigma
+      &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;
+1     1.000         1.000 0.0472
+
+$survey_only_fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared sigma
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1     0.901         0.893  1.58</code></pre>
+</div>
+</div>
+</section>
+<section id="plots" class="level2">
+<h2 class="anchored" data-anchor-id="plots">Plots</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bivariate-regression-anxiety-stresssurvey" class="level2">
+<h2 class="anchored" data-anchor-id="bivariate-regression-anxiety-stresssurvey">1) Bivariate Regression: Anxiety ~ StressSurvey</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$coefficients
+# A tibble: 2 × 5
+  term         estimate std.error statistic      p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+1 (Intercept)     -1.52    0.707      -2.16 0.0504      
+2 StressSurvey     1.05    0.0962     10.9  0.0000000668
+
+$fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared sigma
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1     0.901         0.893  1.58</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bivariate-regression-anxiety-time" class="level2">
+<h2 class="anchored" data-anchor-id="bivariate-regression-anxiety-time">2) Bivariate Regression: Anxiety ~ Time</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$coefficients
+# A tibble: 2 × 5
+  term        estimate std.error statistic p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 (Intercept)    -3.68      2.23     -1.65 0.123  
+2 Time            5.34      1.30      4.09 0.00127
+
+$fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared sigma
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1     0.563         0.529  3.32</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="multiple-regression-anxiety-stresssurvey-time" class="level2">
+<h2 class="anchored" data-anchor-id="multiple-regression-anxiety-stresssurvey-time">3) Multiple Regression: Anxiety ~ StressSurvey + Time</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$coefficients
+# A tibble: 3 × 5
+  term         estimate std.error statistic    p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 (Intercept)     0.589     1.03      0.569 0.580     
+2 StressSurvey    1.43      0.172     8.29  0.00000262
+3 Time           -2.78      1.11     -2.50  0.0278    
+
+$fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared sigma
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1     0.935         0.924  1.33</code></pre>
+</div>
+</div>
+<section id="model-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="model-comparison">Model Comparison</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  model                      r_squared adj_r_squared    sigma
+  &lt;chr&gt;                          &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+1 True: Stress + Time            1             1     7.27e-16
+2 Bivar: StressSurvey            0.901         0.893 1.58e+ 0
+3 Bivar: Time                    0.563         0.529 3.32e+ 0
+4 Multi: StressSurvey + Time     0.935         0.924 1.33e+ 0</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="subset-analysis-different-time-regimes" class="level2">
+<h2 class="anchored" data-anchor-id="subset-analysis-different-time-regimes">4) Subset Analysis: Different Time Regimes</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$short_coefficients
+# A tibble: 3 × 5
+  term          estimate std.error statistic  p.value
+  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)  -2.74e-16  6.25e-17  -4.39e 0 2.18e- 2
+2 StressSurvey  3.33e- 1  1.90e-17   1.75e16 4.09e-49
+3 Time          1.00e- 1  7.65e-17   1.31e15 9.87e-46
+
+$short_fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared    sigma
+      &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+1         1             1 6.25e-17
+
+$long_coefficients
+# A tibble: 3 × 5
+  term         estimate std.error statistic    p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 (Intercept)      7.57     5.41       1.40 0.211     
+2 StressSurvey     1.95     0.113     17.2  0.00000245
+3 Time            -8.47     3.03      -2.80 0.0314    
+
+$long_fit
+# A tibble: 1 × 3
+  r.squared adj.r.squared sigma
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1     0.994         0.993 0.378</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="your-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="your-analysis">Your Analysis</h2>
+<p>This is a short, consulting-style brief. Code is hidden; figures and tables drive the story.</p>
+<section id="items" class="level3">
+<h3 class="anchored" data-anchor-id="items">75% items</h3>
+<ol type="1">
+<li>Bivariate: Anxiety ~ StressSurvey</li>
+</ol>
+<ul>
+<li>Estimated slope for StressSurvey: 1.047; intercept: -1.524; R²: 0.901.</li>
+<li>Comparison to truth (Intercept = 0, β_Stress = 1, β_Time = 0.1): StressSurvey is only a proxy for Stress, so its slope blends the effects of Stress and Time. Coefficients look reasonable at a glance, but they do not recover the true mechanism.</li>
+</ul>
+<ol start="2" type="1">
+<li>Visualization: StressSurvey vs Anxiety</li>
+</ol>
+<ul>
+<li>Trend is roughly linear, but dispersion varies with Time (see color/shape separation in the earlier plot). This hints that a single bivariate line cannot capture the Time effect.</li>
+</ul>
+<ol start="3" type="1">
+<li>Bivariate: Anxiety ~ Time</li>
+</ol>
+<ul>
+<li>Estimated slope for Time: 5.341; intercept: -3.68; R²: 0.563.</li>
+<li>The slope is close to the true 0.1 but fit is modest because Stress— the main driver—is omitted.</li>
+</ul>
+<ol start="4" type="1">
+<li>Visualization: Time vs Anxiety</li>
+</ol>
+<ul>
+<li>Clear positive association but with vertical bands where Stress changes; again, a bivariate line misses the joint effect.</li>
+</ul>
+<ol start="5" type="1">
+<li>Multiple regression: Anxiety ~ StressSurvey + Time</li>
+</ol>
+<ul>
+<li>Coefficients: StressSurvey = 1.427, Time = -2.78. R² = 0.935.</li>
+<li>Interpretation: Adding Time corrects part of the omitted-variable bias in the bivariate StressSurvey model. Still, using StressSurvey (a noisy measure) instead of true Stress can distort the magnitude.</li>
+</ul>
+</section>
+<section id="items-1" class="level3">
+<h3 class="anchored" data-anchor-id="items-1">85% items</h3>
+<ol start="6" type="1">
+<li>Compare multiple models</li>
+</ol>
+<ul>
+<li>True model (Stress + Time) has the best fit and recovers coefficients near β_Stress≈1 and β_Time≈0.1 with R²=1.</li>
+<li>The proxy model (StressSurvey + Time) often has decent R², but coefficients tell a muddier story—illustrating how “good fit” can coexist with misleading parameter interpretations.</li>
+</ul>
+</section>
+<section id="item" class="level3">
+<h3 class="anchored" data-anchor-id="item">95% item</h3>
+<ol start="7" type="1">
+<li>Real‑world implication</li>
+</ol>
+<ul>
+<li>A headline from the bivariate StressSurvey model might overstate the role of survey scores on Anxiety, ignoring Time. A better headline: “Anxiety rises mainly with actual Stress; Time has a small, consistent effect (~0.1 per unit). Survey scores alone can mislead.” This is the interpretation a careful analyst would publish.</li>
+</ul>
+</section>
+<section id="item-avoiding-misleading-significance-subset-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="item-avoiding-misleading-significance-subset-analysis">100% item: Avoiding misleading significance (subset analysis)</h3>
+<ul>
+<li>Strategy: split by Time regime (short vs long). Refit <code>Anxiety ~ StressSurvey + Time</code> in each subset.</li>
+<li>Short‑time regime: 1 R²; coefficients can shift because StressSurvey imperfectly tracks Stress when Time has little variation.</li>
+<li>Long‑time regime: 0.994 R²; coefficients move again, and a variable may look significant or not depending on regime. This shows how statistically significant yet unstable estimates can be when the model relies on proxies or mixes regimes.</li>
+</ul>
+</section>
+<section id="bottom-line" class="level3">
+<h3 class="anchored" data-anchor-id="bottom-line">Bottom line</h3>
+<ul>
+<li>Trust mechanisms, not just p‑values: The model that uses the true drivers (Stress and Time) is stable and interpretable; proxy‑based models can achieve similar R² while telling the wrong causal story. For decisions, use the joint model with real Stress; treat StressSurvey as a noisy indicator.</li>
+</ul>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

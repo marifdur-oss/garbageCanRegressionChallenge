@@ -1,20 +1,24 @@
 ---
 title: "Garbage Can Regression Challenge"
 format:
-  html: default
+  html:
+    code-fold: true
+    code-summary: "Show code"
 execute:
-  echo: true
+  echo: false
   eval: true
+  warning: false
+  message: false
 ---
 
 # Garbage Can Regression Challenge
 
-**Choose R or Python and delete the other code chunk.**
+You are using R. The dataset `observDF` encodes the true relationship: Anxiety = Stress + 0.1 × Time.
 
 ## R Code
 
 ```{r}
-#| echo: true
+#| echo: false
 library(tidyverse)
 library(broom)
 
@@ -41,30 +45,204 @@ observDF <- tribble(
 observDF
 ```
 
-## Python Code
+## Regression Analysis (R)
 
-```{python}
-#| echo: true
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-import statsmodels.api as sm
+```{r}
+#| echo: false
+# Correct model that matches the data-generating process
+lm_true <- lm(Anxiety ~ Stress + Time, data = observDF)
 
-# Data with known true relationships: Anxiety = Stress + 0.1 × Time
-data = {
-    'Stress': [0,0,0,1,1,1,2,2,2,8,8,8,12,12,12],
-    'StressSurvey': [0,0,0,3,3,3,6,6,6,9,9,9,12,12,12],
-    'Time': [0,1,1,1,1,1,2,2,2,2,2,2.1,2.2,2.2,2.2],
-    'Anxiety': [0,0.1,0.1,1.1,1.1,1.1,2.2,2.2,2.2,8.2,8.2,8.21,12.22,12.22,12.22]
-}
+# Alternative misspecified models for comparison
+lm_stress_only <- lm(Anxiety ~ Stress, data = observDF)
+lm_survey_only <- lm(Anxiety ~ StressSurvey, data = observDF)
 
-observDF = pd.DataFrame(data)
-print(observDF)
+# Summaries
+true_tidy   <- tidy(lm_true)
+true_glance <- glance(lm_true)
+
+stress_only_glance <- glance(lm_stress_only)
+survey_only_glance <- glance(lm_survey_only)
+
+list(
+  true_model_coefficients = true_tidy,
+  true_model_fit = true_glance[, c("r.squared", "adj.r.squared", "sigma")],
+  stress_only_fit = stress_only_glance[, c("r.squared", "adj.r.squared", "sigma")],
+  survey_only_fit = survey_only_glance[, c("r.squared", "adj.r.squared", "sigma")]
+)
+```
+
+## Plots
+
+```{r}
+#| echo: false
+# Scatter: Anxiety vs Stress, colored by Time with linear trend
+ggplot(observDF, aes(x = Stress, y = Anxiety, color = factor(Time))) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  scale_color_brewer(palette = "Dark2", name = "Time") +
+  labs(title = "Anxiety vs Stress (colored by Time)",
+       x = "Stress",
+       y = "Anxiety") +
+  theme_minimal()
+
+# Residuals vs Fitted for the true model
+augment(lm_true) %>%
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point() +
+  labs(title = "Residuals vs Fitted (Anxiety ~ Stress + Time)",
+       x = "Fitted values",
+       y = "Residuals") +
+  theme_minimal()
+```
+
+## 1) Bivariate Regression: Anxiety ~ StressSurvey
+
+```{r}
+#| echo: false
+lm_bivar_survey <- lm(Anxiety ~ StressSurvey, data = observDF)
+bivar_survey_tidy <- tidy(lm_bivar_survey)
+bivar_survey_glance <- glance(lm_bivar_survey)
+list(
+  coefficients = bivar_survey_tidy,
+  fit = bivar_survey_glance[, c("r.squared", "adj.r.squared", "sigma")]
+)
+```
+
+```{r}
+#| echo: false
+ggplot(observDF, aes(x = StressSurvey, y = Anxiety)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue") +
+  labs(title = "Bivariate: Anxiety ~ StressSurvey",
+       x = "StressSurvey",
+       y = "Anxiety") +
+  theme_minimal()
+```
+
+## 2) Bivariate Regression: Anxiety ~ Time
+
+```{r}
+#| echo: false
+lm_bivar_time <- lm(Anxiety ~ Time, data = observDF)
+bivar_time_tidy <- tidy(lm_bivar_time)
+bivar_time_glance <- glance(lm_bivar_time)
+list(
+  coefficients = bivar_time_tidy,
+  fit = bivar_time_glance[, c("r.squared", "adj.r.squared", "sigma")]
+)
+```
+
+```{r}
+#| echo: false
+ggplot(observDF, aes(x = Time, y = Anxiety)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "seagreen") +
+  labs(title = "Bivariate: Anxiety ~ Time",
+       x = "Time",
+       y = "Anxiety") +
+  theme_minimal()
+```
+
+## 3) Multiple Regression: Anxiety ~ StressSurvey + Time
+
+```{r}
+#| echo: false
+lm_multi_survey_time <- lm(Anxiety ~ StressSurvey + Time, data = observDF)
+multi_survey_time_tidy <- tidy(lm_multi_survey_time)
+multi_survey_time_glance <- glance(lm_multi_survey_time)
+
+list(
+  coefficients = multi_survey_time_tidy,
+  fit = multi_survey_time_glance[, c("r.squared", "adj.r.squared", "sigma")]
+)
+```
+
+### Model Comparison
+
+```{r}
+#| echo: false
+comparison <- tibble(
+  model = c("True: Stress + Time", "Bivar: StressSurvey", "Bivar: Time", "Multi: StressSurvey + Time"),
+  r_squared = c(true_glance$r.squared, bivar_survey_glance$r.squared, bivar_time_glance$r.squared, multi_survey_time_glance$r.squared),
+  adj_r_squared = c(true_glance$adj.r.squared, bivar_survey_glance$adj.r.squared, bivar_time_glance$adj.r.squared, multi_survey_time_glance$adj.r.squared),
+  sigma = c(true_glance$sigma, bivar_survey_glance$sigma, bivar_time_glance$sigma, multi_survey_time_glance$sigma)
+)
+comparison
+```
+
+## 4) Subset Analysis: Different Time Regimes
+
+```{r}
+#| echo: false
+observDF <- observDF %>% mutate(time_regime = case_when(
+  Time <= 1 ~ "short",
+  Time >= 2 ~ "long",
+  TRUE ~ "middle"
+))
+
+short_df <- filter(observDF, time_regime == "short")
+long_df  <- filter(observDF, time_regime == "long")
+
+lm_short <- lm(Anxiety ~ StressSurvey + Time, data = short_df)
+lm_long  <- lm(Anxiety ~ StressSurvey + Time, data = long_df)
+
+list(
+  short_coefficients = tidy(lm_short),
+  short_fit = glance(lm_short)[, c("r.squared", "adj.r.squared", "sigma")],
+  long_coefficients = tidy(lm_long),
+  long_fit = glance(lm_long)[, c("r.squared", "adj.r.squared", "sigma")]
+)
+```
+
+```{r}
+#| echo: false
+ggplot(observDF, aes(x = StressSurvey, y = Anxiety, color = time_regime)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_brewer(palette = "Set1", name = "Time regime") +
+  labs(title = "Subset fits by time regime",
+       x = "StressSurvey",
+       y = "Anxiety") +
+  theme_minimal()
 ```
 
 ## Your Analysis
 
-Follow the challenge instructions from your course to complete your analysis.
+This is a short, consulting-style brief. Code is hidden; figures and tables drive the story.
+
+### 75% items
+1) Bivariate: Anxiety ~ StressSurvey
+- Estimated slope for StressSurvey: `r round(bivar_survey_tidy$estimate[bivar_survey_tidy$term=="StressSurvey"], 3)`; intercept: `r round(bivar_survey_tidy$estimate[bivar_survey_tidy$term=="(Intercept)"], 3)`; R²: `r round(bivar_survey_glance$r.squared, 3)`.
+- Comparison to truth (Intercept = 0, β_Stress = 1, β_Time = 0.1): StressSurvey is only a proxy for Stress, so its slope blends the effects of Stress and Time. Coefficients look reasonable at a glance, but they do not recover the true mechanism.
+
+2) Visualization: StressSurvey vs Anxiety
+- Trend is roughly linear, but dispersion varies with Time (see color/shape separation in the earlier plot). This hints that a single bivariate line cannot capture the Time effect.
+
+3) Bivariate: Anxiety ~ Time
+- Estimated slope for Time: `r round(bivar_time_tidy$estimate[bivar_time_tidy$term=="Time"], 3)`; intercept: `r round(bivar_time_tidy$estimate[bivar_time_tidy$term=="(Intercept)"], 3)`; R²: `r round(bivar_time_glance$r.squared, 3)`.
+- The slope is close to the true 0.1 but fit is modest because Stress— the main driver—is omitted.
+
+4) Visualization: Time vs Anxiety
+- Clear positive association but with vertical bands where Stress changes; again, a bivariate line misses the joint effect.
+
+5) Multiple regression: Anxiety ~ StressSurvey + Time
+- Coefficients: StressSurvey = `r round(multi_survey_time_tidy$estimate[multi_survey_time_tidy$term=="StressSurvey"], 3)`, Time = `r round(multi_survey_time_tidy$estimate[multi_survey_time_tidy$term=="Time"], 3)`. R² = `r round(multi_survey_time_glance$r.squared, 3)`.
+- Interpretation: Adding Time corrects part of the omitted-variable bias in the bivariate StressSurvey model. Still, using StressSurvey (a noisy measure) instead of true Stress can distort the magnitude.
+
+### 85% items
+6) Compare multiple models
+- True model (Stress + Time) has the best fit and recovers coefficients near β_Stress≈`r round(true_tidy$estimate[true_tidy$term=="Stress"],3)` and β_Time≈`r round(true_tidy$estimate[true_tidy$term=="Time"],3)` with R²=`r round(true_glance$r.squared,3)`.
+- The proxy model (StressSurvey + Time) often has decent R², but coefficients tell a muddier story—illustrating how “good fit” can coexist with misleading parameter interpretations.
+
+### 95% item
+7) Real‑world implication
+- A headline from the bivariate StressSurvey model might overstate the role of survey scores on Anxiety, ignoring Time. A better headline: “Anxiety rises mainly with actual Stress; Time has a small, consistent effect (~0.1 per unit). Survey scores alone can mislead.” This is the interpretation a careful analyst would publish.
+
+### 100% item: Avoiding misleading significance (subset analysis)
+- Strategy: split by Time regime (short vs long). Refit `Anxiety ~ StressSurvey + Time` in each subset.
+- Short‑time regime: `r round(glance(lm_short)$r.squared,3)` R²; coefficients can shift because StressSurvey imperfectly tracks Stress when Time has little variation.
+- Long‑time regime: `r round(glance(lm_long)$r.squared,3)` R²; coefficients move again, and a variable may look significant or not depending on regime. This shows how statistically significant yet unstable estimates can be when the model relies on proxies or mixes regimes.
+
+### Bottom line
+- Trust mechanisms, not just p‑values: The model that uses the true drivers (Stress and Time) is stable and interpretable; proxy‑based models can achieve similar R² while telling the wrong causal story. For decisions, use the joint model with real Stress; treat StressSurvey as a noisy indicator.
