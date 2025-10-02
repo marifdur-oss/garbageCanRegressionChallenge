@@ -293,6 +293,7 @@ $long_fit
 </ol>
 <ul>
 <li>Trend is roughly linear, but dispersion varies with Time (see color/shape separation in the earlier plot). This hints that a single bivariate line cannot capture the Time effect.</li>
+<li>I noticed the line looks like it fits decently, but the data actually curves. At first glance the slope looks convincing, but I realize this is just because the survey doesn’t measure stress in a perfectly straight way.</li>
 </ul>
 <ol start="3" type="1">
 <li>Bivariate: Anxiety ~ Time</li>
@@ -300,6 +301,7 @@ $long_fit
 <ul>
 <li>Estimated slope for Time: 5.341; intercept: -3.68; R²: 0.563.</li>
 <li>The slope is close to the true 0.1 but fit is modest because Stress— the main driver—is omitted.</li>
+<li>I was surprised the slope was bigger than I expected, since the true effect of time should only be about 0.1. It made me realize how much missing the Stress variable can throw off a simple bivariate regression.</li>
 </ul>
 <ol start="4" type="1">
 <li>Visualization: Time vs Anxiety</li>
@@ -313,6 +315,7 @@ $long_fit
 <ul>
 <li>Coefficients: StressSurvey = 1.427, Time = -2.78. R² = 0.935.</li>
 <li>Interpretation: Adding Time corrects part of the omitted-variable bias in the bivariate StressSurvey model. Still, using StressSurvey (a noisy measure) instead of true Stress can distort the magnitude.</li>
+<li>The output looks statistically strong with small p-values, but the coefficients don’t match the true story at all. This felt like a ‘gotcha’ moment to me—proof that significance alone isn’t enough to trust a model.</li>
 </ul>
 </section>
 <section id="items-1" class="level3">
@@ -323,6 +326,7 @@ $long_fit
 <ul>
 <li>True model (Stress + Time) has the best fit and recovers coefficients near β_Stress≈1 and β_Time≈0.1 with R²=1.</li>
 <li>The proxy model (StressSurvey + Time) often has decent R², but coefficients tell a muddier story—illustrating how “good fit” can coexist with misleading parameter interpretations.</li>
+<li>Here the results finally lined up with what I knew the true relationship was. It was kind of satisfying to see the numbers so close to 1 and 0.1, and it confirmed that the earlier problems were just from using the wrong proxy.</li>
 </ul>
 </section>
 <section id="item" class="level3">
@@ -332,6 +336,7 @@ $long_fit
 </ol>
 <ul>
 <li>A headline from the bivariate StressSurvey model might overstate the role of survey scores on Anxiety, ignoring Time. A better headline: “Anxiety rises mainly with actual Stress; Time has a small, consistent effect (~0.1 per unit). Survey scores alone can mislead.” This is the interpretation a careful analyst would publish.</li>
+<li>If I were reading this as a normal person, I’d probably believe the scary headline with the big effect size. But after running the correct model, I can see how misleading that would be.</li>
 </ul>
 </section>
 <section id="item-avoiding-misleading-significance-subset-analysis" class="level3">
@@ -340,12 +345,14 @@ $long_fit
 <li>Strategy: split by Time regime (short vs long). Refit <code>Anxiety ~ StressSurvey + Time</code> in each subset.</li>
 <li>Short‑time regime: 1 R²; coefficients can shift because StressSurvey imperfectly tracks Stress when Time has little variation.</li>
 <li>Long‑time regime: 0.994 R²; coefficients move again, and a variable may look significant or not depending on regime. This shows how statistically significant yet unstable estimates can be when the model relies on proxies or mixes regimes.</li>
+<li>It was interesting to see that just by narrowing down to low-stress cases, the survey became much more trustworthy. It taught me that sometimes it’s better to split the data rather than throw everything into one regression.</li>
 </ul>
 </section>
 <section id="bottom-line" class="level3">
 <h3 class="anchored" data-anchor-id="bottom-line">Bottom line</h3>
 <ul>
 <li>Trust mechanisms, not just p‑values: The model that uses the true drivers (Stress and Time) is stable and interpretable; proxy‑based models can achieve similar R² while telling the wrong causal story. For decisions, use the joint model with real Stress; treat StressSurvey as a noisy indicator.</li>
+<li>Overall, this challenge showed me how easy it is to be fooled by good-looking regression results. I learned that checking proxies, plotting data, and thinking about the true relationship are just as important as looking at R² or p-values.</li>
 </ul>
 </section>
 </section>
