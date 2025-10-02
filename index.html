@@ -351,8 +351,20 @@ $long_fit
 <section id="bottom-line" class="level3">
 <h3 class="anchored" data-anchor-id="bottom-line">Bottom line</h3>
 <ul>
-<li>Trust mechanisms, not just p‑values: The model that uses the true drivers (Stress and Time) is stable and interpretable; proxy‑based models can achieve similar R² while telling the wrong causal story. For decisions, use the joint model with real Stress; treat StressSurvey as a noisy indicator.</li>
-<li>Overall, this challenge showed me how easy it is to be fooled by good-looking regression results. I learned that checking proxies, plotting data, and thinking about the true relationship are just as important as looking at R² or p-values.</li>
+<li><p><strong>Specific misleading coefficients identified:</strong></p>
+<ul>
+<li><strong>StressSurvey coefficient in bivariate model (1.047)</strong>: This is misleading because it conflates the true Stress effect (β=1) with the Time effect (β=0.1). The survey acts as a noisy proxy that captures both variables, making the coefficient appear larger and more significant than the true Stress effect alone.</li>
+<li><strong>Time coefficient in bivariate model (5.341)</strong>: This is severely misleading because it’s 53x larger than the true effect (0.1). This happens because omitting Stress creates omitted variable bias—Time appears to explain Anxiety variation that’s actually driven by the missing Stress variable.</li>
+<li><strong>Time coefficient in multiple regression with StressSurvey (-2.78)</strong>: This is particularly dangerous because it has the wrong sign! The true Time effect is positive (0.1), but the proxy model shows negative. This occurs because StressSurvey imperfectly measures Stress, creating multicollinearity that distorts the Time coefficient interpretation.</li>
+</ul></li>
+<li><p><strong>Why these coefficients mislead:</strong></p>
+<ul>
+<li>The bivariate models suffer from omitted variable bias—missing the true Stress variable makes other coefficients absorb its effect</li>
+<li>The proxy model (StressSurvey + Time) suffers from measurement error bias—using an imperfect measure of Stress contaminates all coefficient estimates</li>
+<li>High R² values (0.901, 0.935) make these misleading models appear trustworthy, but the coefficients tell completely wrong causal stories</li>
+</ul></li>
+<li><p><strong>The correct model (Stress + Time) recovers the true coefficients</strong>: β_Stress≈1.0 and β_Time≈0.1, exactly matching the data-generating process.</p></li>
+<li><p>Overall, this challenge showed me how easy it is to be fooled by good-looking regression results. I learned that checking proxies, plotting data, and thinking about the true relationship are just as important as looking at R² or p-values.</p></li>
 </ul>
 </section>
 </section>
